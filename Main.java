@@ -49,7 +49,7 @@ public class Main extends FragmentActivity {
     static boolean has_panes;
     private static boolean flag2 = false;
     private static final int XML = 0;
-    private static final int JSON = 1; //JSON and XML, not functional yet, only CSV.   
+    private static final int JSON = 1; // XML, not functional yet, only CSV and some JSON   
     private static final int CSV = 3;
     private int mode = CSV; //default
     //private int mode= JSON;
@@ -404,6 +404,9 @@ public class Main extends FragmentActivity {
             String urlStr = "http://finance.yahoo.com/d/quotes.csv?s=" + sb.toString() + "&f=snl1va2p"; //This link used to work
             // but yahoo seems to have blocked this recently! Is there anyone who can find a workaround around this??
             
+            // String urlStr = "https://www.bitstamp.net/api/v2/ticker/"+ sb.toString() + "/"; //Use this link for getting
+            // Cryptocurrency data but using StockJsonParser class (JSON) and just 1 Ticker symbol only.
+            
             return urlStr;
         }
  
@@ -428,7 +431,7 @@ public class Main extends FragmentActivity {
         }
     }
      
-     private class StockJsonParser extends BaseStockParser { // Class for JSON Under Construction/ Follows CSV Pattern
+     private class StockJsonParser extends BaseStockParser { // Class for JSON Under Construction/ Follows StockCsvParser Pattern
         @Override
         protected Stock[] doInBackground(String... symbols) {
             Stock[] stocks = new Stock[symbols.length];
@@ -440,9 +443,7 @@ public class Main extends FragmentActivity {
                 String line = reader.readLine();
                 while (line != null) {
                     json.append(line);
-
                     json.append("\n");//new
-
                     line = reader.readLine();
                 }
                 String[] stocks1 = json.toString().split("\n");
@@ -516,10 +517,9 @@ public class Main extends FragmentActivity {
                     } else if (maxAveVol < pcvold){
                         mostAction = values[1];
                         //maxAveVol = pcvold;
-                        maxAveVol = 1000.5; //Test Value
+                        maxAveVol = 1000.5; // Test Value
                     }
                 }
-
             }catch(Exception e){
                 e.printStackTrace();
             }
