@@ -428,6 +428,106 @@ public class Main extends FragmentActivity {
         }
     }
      
+     private class StockJsonParser extends BaseStockParser { // Class for JSON Under Construction/ Follows CSV Pattern
+        @Override
+        protected Stock[] doInBackground(String... symbols) {
+            Stock[] stocks = new Stock[symbols.length];
+            List<Stock> stocks2 = null;
+            try {
+                StringBuilder json = new StringBuilder();
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(getData(symbols)));
+                String line = reader.readLine();
+                while (line != null) {
+                    json.append(line);
+
+                    json.append("\n");//new
+
+                    line = reader.readLine();
+                }
+                String[] stocks1 = json.toString().split("\n");
+                stocks2 = new ArrayList<Stock>(symbols.length);
+                for (String s:stocks1){
+                    String quotes = ParseCommasInQuotes(s);
+                    JSONObject jsonObj = new JSONObject(json.toString());
+                    String high = jsonObj.getString("high");
+                    String low = jsonObj.getString("low");
+                    String last = jsonObj.getString("last");
+                    String bid = jsonObj.getString("bid");
+                    String ask = jsonObj.getString("ask");
+                    String volume = jsonObj.getString("volume");
+                    String vwap = jsonObj.getString("vwap");
+                    String[] values = {"symbol", "name", last, low, volume, "10"};
+                    int vol = 0;
+                    try{
+                        vol = 20800; // Test Value
+                    } catch(NumberFormatException e){
+                        Stock stk = new Stock(values[1],"You've entered a WRONG Cryptocurrency Ticker Symbol! Try Again!", 0.0,0.0,0.0,0.0,true);
+                        stocks2.add(stk);
+                        pubStocks = stocks2.toArray(stocks);
+                        return pubStocks;
+                    }
+                    int avgvol = 0;
+                    try {
+                        avgvol =17000; //Test Value
+                    } catch (NumberFormatException e){
+                        flag2 = true;
+                        Stock stk =  new Stock(values[0],"You've entered a WRONG Cryptocurrency Ticker Symbol! Try Again!",0.0,0.0,avgvol,0.0,true);
+                        stocks2.add(stk);
+                        pubStocks = stocks2.toArray(stocks);
+                        return pubStocks;
+                } catch (Exception n){
+                    System.out.println("Error(not a NumberFormatException)");
+                }
+            flag2 = false;
+            avgvol = 1000; //Test Value
+            float pcvol = (float) vol / avgvol;
+            double pcvold = Math.round(pcvol * 100.0);
+            double prev = Double.parseDouble(values[3]);
+            double price = Double.parseDouble(values[2]);
+            double pchang = (price - prev) / prev * 100;
+            double pchange = (Math.round(pchang * 100.0)) / 100.0;
+            boolean flag;
+            if (pchang >= 0) {
+                flag = true;
+            } else {
+                flag = false;
+            }
+                    Stock stk = new Stock(values[0], values[1], Double.parseDouble(values[2]), prev, pcvold, pchange, flag);
+                    stocks2.add(stk);
+                    if (loser == null) {
+                        loser = values[1];
+                        mostNeg = pchange;
+                    } else if (mostNeg > pchange) {
+                        loser = values[1];
+                        mostNeg = pchange;
+                    }
+                    if (winner == null) {
+                        winner = values[1];
+                        mostPos = pchange;
+                    } else if (mostPos < pchange) {
+                        winner = values[1];
+                        mostPos = pchange;
+                    }
+                    if (mostAction == null){
+                        mostAction = values[1];
+                        //maxAveVol = pcvold;
+                        maxAveVol = 1000.5; // Test Value
+                    } else if (maxAveVol < pcvold){
+                        mostAction = values[1];
+                        //maxAveVol = pcvold;
+                        maxAveVol = 1000.5; //Test Value
+                    }
+                }
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            pubStocks = stocks2.toArray(stocks);
+            return pubStocks;
+        }
+    }                                      
+                                          
     private class StockCsvParser extends BaseStockParser {
         @Override
         protected Stock[] doInBackground(String... symbols) {
