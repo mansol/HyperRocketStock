@@ -416,7 +416,7 @@ public class Main extends FragmentActivity {
                 URL url = new URL(makeUrlString(symbols));                
                 is = url.openStream();           
             } catch(Exception e) {           
-                String text = "One or more of the Stocks you've inputted has a wrong Crypto Symbol! Try Again!";
+                String text = "One or more of the Stocks you've inputted has a wrong Ticker Symbol! Try Again!";
                 Toast toast = Toast.makeText(getApplicationContext(), text ,  Toast.LENGTH_LONG);
                 toast.show();
                 e.printStackTrace();
